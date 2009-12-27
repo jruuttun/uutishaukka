@@ -13,6 +13,14 @@ import os
 # Päivämäärien ja kellonaikojen käsittly
 from datetime import datetime
 
+
+# Uutisjuttujen vertailufunktio;
+# toistaiseksi vain tutkitaan, onko annettu html-tiedosto
+# täsmälleen sama kuin uusi versio
+def equal(oldVersion, newVersion):
+    return oldVersion == newVersion
+
+
 # Käy läpi annetussa rss-itemissä viitatun jutun ja tallentaa jutulle
 # uuden version, ellei kyseinen versio ole jo tallessa
 def processItem(channelTitle, itemElement):
@@ -26,9 +34,6 @@ def processItem(channelTitle, itemElement):
     else:
         versionNames = os.listdir(itemDir)
         if len(versionNames) > 0: 
-#            print "Uutisjutun '" + itemDir + "' versiot: "
-#            for versionName in versionNames: 
-#                print " " + versionName
             versionNames.sort(); versionNames.reverse()
             print "Uutisjutun '" + itemDir + "' viimeisin versio: " + versionNames[0]
             latestVersionFile = open(itemDir + os.sep + versionNames[0], 'r');
@@ -40,7 +45,7 @@ def processItem(channelTitle, itemElement):
 
     if latestVersionHtml is not None:
         print "Vertaillaan viimeista versiota tamanhetkiseen: " + itemLink
-        if latestVersionHtml == storyHtml:
+        if equal(latestVersionHtml, storyHtml):
             saveVersion = False
             print "Ei muutoksia edellisen ajon jalkeen"
         else:
@@ -58,11 +63,10 @@ def processItem(channelTitle, itemElement):
         storyFile.close();
         
 
-# Käy läpi syötteen jutu ja päivittää niiden tiedot syötedokumentin
+# Käy läpi syötteen jutut ja päivittää niiden tiedot syötedokumentin
 # elementin channel->title mukaisiin hakemistoihin
 # processItem-funktion avulla
 def processChannel(rssDocument):
-#    print rssDocument.toxml()
     channelNode = rssDocument.getElementsByTagName("channel")[0]
     channelTitle = channelNode.getElementsByTagName("title")[0].firstChild.data
     if not os.path.exists(channelTitle):
