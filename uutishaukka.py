@@ -38,23 +38,25 @@ def processItem(channelTitle, itemElement):
             print "Uutisjutun '" + itemDir + "' viimeisin versio: " + versionNames[0]
             latestVersionFile = open(itemDir + os.sep + versionNames[0], 'r');
             latestVersionHtml = latestVersionFile.read()
+            latestVersionFile.close()
         
     itemLink = itemElement.getElementsByTagName("link")[0].firstChild.data
+    print "Haetaan juttu: " + itemLink
     storyHtml = urllib2.urlopen(itemLink).read()
     saveVersion = True
 
     if latestVersionHtml is not None:
-        print "Vertaillaan viimeista versiota tamanhetkiseen: " + itemLink
+        print "Vertaillaan juttua viimeisimpään versioon..."
         if equal(latestVersionHtml, storyHtml):
             saveVersion = False
             print "Ei muutoksia edellisen ajon jalkeen"
         else:
-            print "Tallennetaan uusi versio"
+            print "Juttu muuttunut, tallennetaan uusi versio"
         
     if saveVersion:
         storyFilename = datetime.now().isoformat() + ".html"
         storyPath = itemDir + os.sep + storyFilename
-        if latestVersionHtml is not None:
+        if latestVersionHtml is None:
             print "Ensimmainen versio:" + storyPath
         else:
             print "Uusi versio: " + storyPath
