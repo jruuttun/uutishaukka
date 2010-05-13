@@ -31,6 +31,8 @@ import unicodedata
 def strip_accents(s):
     return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
 
+encoding = 'utf-8'
+
 # Käy läpi annetussa rss-itemissä viitatun jutun ja tallentaa jutulle
 # uuden version, ellei kyseinen versio ole jo tallessa
 def processItem(itemElement):
@@ -40,12 +42,12 @@ def processItem(itemElement):
     print "**"
     if not os.path.exists(itemTitle):
         os.mkdir(itemTitle)
-        print "Uusi uutisjuttu: " + itemTitle.encode('utf-8')
+        print "Uusi uutisjuttu: " + itemTitle.encode(encoding)
     else:
         versionNames = os.listdir(itemTitle)
         if len(versionNames) > 0: 
             versionNames.sort(); versionNames.reverse()
-            print "Uutisjutun '" + itemTitle.encode('utf-8') + "' viimeisin versio: " + versionNames[0].encode('utf-8')
+            print "Uutisjutun '" + itemTitle.encode(encoding) + "' viimeisin versio: " + versionNames[0].encode(encoding)
             latestVersion = versionNames[0]
     
     os.chdir(itemTitle)
@@ -73,7 +75,7 @@ def processChannel(path, rssDocument):
         print "Uusi uutiskanava: " + channelDir
     os.chdir(channelDir)
     rssFile = open('rss.xml', 'w')
-    rssFile.write(rssDocument.toxml().encode('utf-8'))
+    rssFile.write(rssDocument.toxml().encode(encoding))
     rssFile.close()
     itemElements = channelNode.getElementsByTagName("item");
     for itemElement in itemElements:
@@ -89,7 +91,7 @@ feedfile.close()
 newsPath = '.'
 if(len(sys.argv) > 1):
     newsPath = sys.argv[1]
-    print "Uutiset viedään hakemistoon " + newsPath.encode('utf-8')
+    print "Uutiset viedään hakemistoon " + newsPath.encode(encoding)
     os.chdir(newsPath)
 else:
     print "Uutiset tallennetaan työhakemistoon"
