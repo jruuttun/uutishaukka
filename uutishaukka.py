@@ -23,10 +23,19 @@ def equal(oldVersion, newVersion):
 # Komentoriviargumentit (sys.argv)
 import sys
 
+
+# Ääkkösiä sisältävien nimien käsittelyä
+# merkkikoodausongelmien väistämiseksi
+import unicodedata
+
+def strip_accents(s):
+    return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
+
 # Käy läpi annetussa rss-itemissä viitatun jutun ja tallentaa jutulle
 # uuden version, ellei kyseinen versio ole jo tallessa
 def processItem(itemElement):
     itemTitle = itemElement.getElementsByTagName("title")[0].firstChild.data
+    itemTitle = strip_accents(itemTitle)
     latestVersion = None
     print "**"
     if not os.path.exists(itemTitle):
