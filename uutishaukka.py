@@ -28,8 +28,7 @@ def makeSafeFilename(filename):
 
 encoding = 'utf-8'
 
-# Käy läpi annetussa rss-itemissä viitatun jutun ja tallentaa jutulle
-# uuden version, ellei kyseinen versio ole jo tallessa
+# Hakee ja tallentaa anntussa rss-itemissä viitatun jutun tiedostojärjestelmään
 def processItem(itemElement):
     titleElement = itemElement.getElementsByTagName("title")[0]
     if titleElement is None or titleElement.firstChild is None:
@@ -61,7 +60,7 @@ def processItem(itemElement):
     os.chdir("..")
 
 
-# Käy läpi syötteen jutut ja päivittää niiden tiedot syötedokumentin
+# Käy läpi syötteen jutut ja vie niiden tiedot syötedokumentin
 # elementin channel->title mukaisiin hakemistoihin
 # processItem-funktion avulla
 def processChannel(path, rssDocument):
@@ -102,7 +101,7 @@ os.chdir(newsPath)
 newsPath = os.getcwd()
 
 
-# käsitellään kaikki syötelistassa mainitut rss-syötteet
+# Käsitellään kaikki syötelistassa mainitut rss-syötteet
 for feed in feeds:
     print "*** Syote: " + feed
     try:
