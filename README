@@ -1,0 +1,8 @@
+Uutishaukka
+===========
+
+Python-ohjelma, joka hakee annetuissa RSS-syötteissä viitatut
+verkkodokumentit talteen myöhempää tarkastelua varten.
+
+Copyright 2009-2010 Janne Ruuttunen.
+
