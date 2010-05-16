@@ -13,31 +13,30 @@ import os
 # Päivämäärien ja kellonaikojen käsittly
 from datetime import datetime
 
-
-# Uutisjuttujen vertailufunktio;
-# toistaiseksi vain tutkitaan, onko annettu html-tiedosto
-# täsmälleen sama kuin uusi versio
-def equal(oldVersion, newVersion):
-    return oldVersion == newVersion
-
 # Komentoriviargumentit (sys.argv)
 import sys
-
 
 # Ääkkösiä sisältävien nimien käsittelyä
 # merkkikoodausongelmien väistämiseksi
 import unicodedata
+import string
 
-def strip_accents(s):
-    return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
+safeChars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+def makeSafeFilename(filename):
+    unaccented = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
+    return ''.join(c for c in unaccented if c in safeChars)
 
 encoding = 'utf-8'
 
 # Käy läpi annetussa rss-itemissä viitatun jutun ja tallentaa jutulle
 # uuden version, ellei kyseinen versio ole jo tallessa
 def processItem(itemElement):
-    itemTitle = itemElement.getElementsByTagName("title")[0].firstChild.data
-    itemTitle = strip_accents(itemTitle)
+    titleElement = itemElement.getElementsByTagName("title")[0]
+    if titleElement is None or titleElement.firstChild is None:
+        print "Otsikkoa ei voitu lukea!"
+        return
+    itemTitle = titleElement.firstChild.data
+    itemTitle = makeSafeFilename(itemTitle)
     latestVersion = None
     print "**"
     if not os.path.exists(itemTitle):
@@ -57,7 +56,7 @@ def processItem(itemElement):
     versionDir = newVersion
     os.mkdir(versionDir)
     os.chdir(versionDir)
-    os.system('wget --page-requisites --convert-links "' + itemLink + '"')
+    os.system('wget --page-requisites --convert-links "ja puoli ' + itemLink + '"')
     os.chdir("..")
     os.chdir("..")
 
@@ -68,8 +67,11 @@ def processItem(itemElement):
 def processChannel(path, rssDocument):
     os.chdir(path)
     channelNode = rssDocument.getElementsByTagName("channel")[0]
-    channelTitle = channelNode.getElementsByTagName("title")[0].firstChild.data
-    channelDir = channelTitle
+    titleElement = channelNode.getElementsByTagName("title")[0]
+    channelTitle = unicode('no-channel-title')
+    if titleElement.firstChild is not None:
+        channelTitle = titleElement.firstChild.data
+    channelDir = makeSafeFilename(channelTitle)
     if not os.path.exists(channelDir):
         os.mkdir(channelDir)
         print "Uusi uutiskanava: " + channelDir
@@ -88,14 +90,15 @@ feedfile = open('feeds.list', 'r')
 feeds = feedfile.readlines()
 feedfile.close()
 
-newsPath = '.'
+newsPath = './data'
 if(len(sys.argv) > 1):
     newsPath = sys.argv[1]
-    print "Uutiset viedään hakemistoon " + newsPath.encode(encoding)
-    os.chdir(newsPath)
-else:
-    print "Uutiset tallennetaan työhakemistoon"
+print "Uutiset viedään hakemistoon " + newsPath.encode(encoding)
+if not os.path.isdir(newsPath):
+    print "Hakemistoa " + newsPath + " ei ole, se luodaan."
+    os.mkdir(newsPath)
 
+os.chdir(newsPath)
 newsPath = os.getcwd()
 
 
