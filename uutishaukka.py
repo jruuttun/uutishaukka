@@ -55,7 +55,7 @@ def processItem(itemElement):
     versionDir = newVersion
     os.mkdir(versionDir)
     os.chdir(versionDir)
-    os.system('wget -nv --page-requisites --convert-links "' + itemLink + '"')
+    os.system('wget -q --page-requisites --convert-links "' + itemLink + '"')
     os.chdir("..")
     os.chdir("..")
 
