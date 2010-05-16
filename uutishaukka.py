@@ -13,6 +13,9 @@ import os
 # Päivämäärien ja kellonaikojen käsittly
 from datetime import datetime
 
+# Feedin pubDate-tiedon jäsennys
+import rfc822
+
 # Komentoriviargumentit (sys.argv)
 import sys
 
@@ -49,15 +52,29 @@ def processItem(itemElement):
             latestVersion = versionNames[0]
     
     os.chdir(itemTitle)
-    itemLink = itemElement.getElementsByTagName("link")[0].firstChild.data
-    newVersion = datetime.now().isoformat()
-    print "Haetaan juttu: " + itemLink
-    versionDir = newVersion
-    os.mkdir(versionDir)
-    os.chdir(versionDir)
-    os.system('wget -q --page-requisites --convert-links "' + itemLink + '"')
-    os.chdir("..")
-    os.chdir("..")
+    try:
+        itemLink = itemElement.getElementsByTagName("link")[0].firstChild.data
+        pubDateStr = itemElement.getElementsByTagName("pubDate")[0].firstChild.data
+        print "pubDate: " + pubDateStr
+        pubDate = rfc822.parsedate(pubDateStr)
+        newVersionDatetime = datetime(*pubDate[0:7])
+        newVersion = newVersionDatetime.isoformat()
+        if latestVersion == newVersion:
+            print "Jutun versio '" + newVersion + "' on jo haettu."
+        else:
+            versionDir = newVersion
+            print "Haetaan juttu: " + itemLink + " hakemistoon " + versionDir
+            try:
+                os.mkdir(versionDir)
+                os.chdir(versionDir)
+                try:
+                    os.system('wget -q --page-requisites --convert-links "' + itemLink + '"')
+                finally:
+                    os.chdir("..")
+            except OSError:
+                print "Hakemiston teko epäonnistui. Kyseessä todennäköisesti eri jutut samalla otsikolla. Juttu jätetään huomiotta."
+    finally:
+        os.chdir("..")
 
 
 # Käy läpi syötteen jutut ja vie niiden tiedot syötedokumentin
