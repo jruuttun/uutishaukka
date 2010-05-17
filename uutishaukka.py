@@ -58,7 +58,7 @@ def processItem(itemElement):
         print "pubDate: " + pubDateStr
         pubDate = rfc822.parsedate(pubDateStr)
         newVersionDatetime = datetime(*pubDate[0:7])
-        newVersion = newVersionDatetime.isoformat()
+        newVersion = newVersionDatetime.isoformat().replace(':','.')
         if latestVersion == newVersion:
             print "Jutun versio '" + newVersion + "' on jo haettu."
         else:
