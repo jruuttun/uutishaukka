@@ -86,7 +86,7 @@ def processItem(itemElement):
                 os.mkdir(versionDir)
                 os.chdir(versionDir)
                 try:
-                    os.system('wget -q --page-requisites --convert-links "' + itemLink + '"')
+                    os.system('wget -q --page-requisites --convert-links --html-extension "' + itemLink + '"')
                 finally:
                     os.chdir("..")
             except OSError:
